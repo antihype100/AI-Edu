@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from loss import YoloLoss
+from config import ANCHORS
 
 config = [
     (32, 3, 1),
@@ -154,6 +156,8 @@ class YoloV3(nn.Module):
         return layers
     
 model = YoloV3()
+criterion = YoloLoss()
 x = torch.randn(2, 3, 416, 416)
-for out in model(x):
-    print(out.shape)
+pred = model(x)
+loss = criterion(pred, pred, ANCHORS)
+    
