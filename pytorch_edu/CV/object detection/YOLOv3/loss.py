@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import config
 
+
 class YoloLoss(nn.Module):
     def __init__(self):
         super().__init__()
@@ -14,9 +15,7 @@ class YoloLoss(nn.Module):
         self.lamda_obj = 1
         self.lamda_box = 10
 
-
     def forward(self, prediction, target, anchors):
-        
         obj = target[..., 0] == 1
         noobj = target[..., 0] == 0
 
@@ -29,7 +28,6 @@ class YoloLoss(nn.Module):
         ious = config.utils.intersection_over_unioin(target[..., 1:5][obj], box_preds[obj]).detach()
         object_loss = self.bce(prediction[..., 0:1][obj], ious * target[..., 0:1][obj])
 
-
         # Box loss
         prediction[..., 1:3] = self.sigmoid(prediction[..., 1:3])
         target[..., 3:5] = torch.log(
@@ -38,17 +36,11 @@ class YoloLoss(nn.Module):
         box_loss = self.bce(prediction[..., 1:5][obj], target[..., 1:5][obj])
 
         # Class loss
-        class_loss = self.entropy(prediction[..., 5:][obj], target[..., 5][obj])
-
-        print('class_loss: >>>', class_loss)
-        print('box_loss: >>>', box_loss)
-        print('no_object_loss: >>>', no_object_loss)
-        print('object_loss: >>>', object_loss)
+        class_loss = self.entropy(prediction[..., 5:][obj], target[..., 5][obj].long())
 
         return (
-            no_object_loss * self.lamda_noobj
-            + object_loss * self.lamda_obj
-            + box_loss * self.lamda_box
-            + class_loss * self.lamda_class
+                no_object_loss * self.lamda_noobj
+                + object_loss * self.lamda_obj
+                + box_loss * self.lamda_box
+                + class_loss * self.lamda_class
         )
-        

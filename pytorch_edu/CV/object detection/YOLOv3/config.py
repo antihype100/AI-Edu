@@ -4,9 +4,9 @@ import torch
 import utils
 from albumentations.pytorch import ToTensorV2
 
-IMG_DIR = "/home/maksm/Документы/datasets/images/"
-LABEL_DIR = "/home/maksm/Документы/datasets/labels/"
-DATASET_DIR = '/home/maksm/Документы/datasets'
+IMG_DIR = "/home/maksm/Документы/PASCAL_VOC/images/"
+LABEL_DIR = "/home/maksm/Документы/PASCAL_VOC/labels/"
+DATASET_DIR = '/home/maksm/Документы/PASCAL_VOC'
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # seed_everything()  # If you want deterministic behavior
 NUM_WORKERS = 4
