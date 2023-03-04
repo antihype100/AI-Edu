@@ -2,6 +2,9 @@ import torch
 import numpy as np
 import os
 import random
+from dataset import YoloDataset
+from torch.utils.data import DataLoader
+import config
 
 
 def intersection_over_unioin(boxes_label, boxes_pred, box_format='midpoint'):
@@ -99,3 +102,44 @@ def seed_everything(seed=42):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+
+def load_dataset(train_csv, test_csv, num_classes):
+
+    IMAGE_SIZE = config.IMAGE_SIZE
+
+    load_train = YoloDataset(
+        csv_file=config.DATASET_DIR + train_csv,
+        img_dir=config.IMG_DIR,
+        label_dir=config.LABEL_DIR,
+        anchors=config.ANCHORS,
+        img_size=IMAGE_SIZE,
+        S = [IMAGE_SIZE // 32, IMAGE_SIZE // 16, IMAGE_SIZE // 8],
+        C=num_classes,
+        transform=config.train_transforms
+    )
+
+    load_test = YoloDataset(
+        csv_file=config.DATASET_DIR + test_csv,
+        img_dir=config.IMG_DIR,
+        label_dir=config.LABEL_DIR,
+        anchors=config.ANCHORS,
+        img_size=IMAGE_SIZE,
+        S=[IMAGE_SIZE // 32, IMAGE_SIZE // 16, IMAGE_SIZE // 8],
+        C=num_classes,
+        transform=config.test_transforms
+    )
+
+    train = DataLoader(
+        load_train,
+        batch_size=config.BATCH_SIZE,
+        shuffle=True, 
+    )
+
+    test = DataLoader(
+        load_test,
+        batch_size=config.BATCH_SIZE,
+        shuffle=False, 
+    )
+
+    return train, test

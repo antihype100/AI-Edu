@@ -5,7 +5,6 @@ import pandas as pd
 import torch
 from PIL import Image, ImageFile
 from torch.utils.data import Dataset, DataLoader
-from utils import iou_width_hight as iou
 
 
 class YoloDataset(Dataset):
@@ -44,14 +43,14 @@ class YoloDataset(Dataset):
         bboxes = np.roll(np.loadtxt(fname=label_path, delimiter=" ", ndmin=2), 4, axis=1).tolist()
         
         if self.transfrom:
-            augmentations = self.transfrom(img=img, bboxes=bboxes)
+            augmentations = self.transfrom(image=img, bboxes=bboxes)
             bboxes = augmentations['bboxes']
-            img = augmentations['img']
+            img = augmentations['image']
 
         targets = [torch.zeros((self.num_anchors // 3, S, S, 6)) for S in self.S]
 
         for box in bboxes:
-            iou_anchors = iou(torch.tensor(box[2:4]), self.anchors) 
+            iou_anchors = config.utils.iou_width_hight(torch.tensor(box[2:4]), self.anchors) 
             anchor_indicies = iou_anchors.argsort(descending=True, dim=0)
             x, y, width, height, class_label = box
             has_anchor = [False, False, False]
@@ -70,13 +69,26 @@ class YoloDataset(Dataset):
                     targets[scale_idx][anchor_on_scale, i, j, 1:5] = box_coordinates
                     targets[scale_idx][anchor_on_scale, i, j, 5] = int(class_label)
                     has_anchor[scale_idx] = True
-                
+                    
             
                 elif not anchor_taken and iou_anchors[anchor_idx] > self.ignore_iou_thresh:
                     targets[scale_idx][anchor_on_scale, i, j, 0] = -1
-        print(targets[0].shape)
+
         return img, tuple(targets) 
 
-csv_path = config.DATASET_DIR + '/8examples.csv'
-data = YoloDataset(csv_path, config.IMG_DIR, config.LABEL_DIR, config.ANCHORS)
-train = DataLoader(data)
+if __name__ == '__main__':
+    csv_path = '/home/maksm/Документы/datasets' + '/train.csv'
+    data = YoloDataset(csv_path, '/home/maksm/Документы/datasets/images/', "/home/maksm/Документы/datasets/labels/", [
+        [(0.28, 0.22), (0.38, 0.48), (0.9, 0.78)],
+        [(0.07, 0.15), (0.15, 0.11), (0.14, 0.29)],
+        [(0.02, 0.03), (0.04, 0.07), (0.08, 0.06)],
+    ])
+    train = DataLoader(data)
+    for x,y in train:
+        print(y[0].shape)
+        print(y[1].shape)
+        print(y[2].shape)
+    # data.__getitem__(1)
+# torch.Size([3, 13, 13, 6])
+# torch.Size([3, 26, 26, 6])
+# torch.Size([3, 52, 52, 6])

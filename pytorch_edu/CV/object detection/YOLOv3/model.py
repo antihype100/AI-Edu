@@ -1,8 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from loss import YoloLoss
-from config import ANCHORS
+from torchsummary import summary
 
 config = [
     (32, 3, 1),
@@ -155,9 +154,8 @@ class YoloV3(nn.Module):
         
         return layers
     
-model = YoloV3()
-criterion = YoloLoss()
-x = torch.randn(2, 3, 416, 416)
-pred = model(x)
-loss = criterion(pred, pred, ANCHORS)
-    
+# model = YoloV3(num_classes=20).to('cuda')
+# x = torch.randn(2, 3, 416, 416).to('cuda')
+# print(model(x)[1].shape)
+# summary(model, (3, 416, 416))
+# print(model)

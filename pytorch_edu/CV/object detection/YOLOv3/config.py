@@ -1,9 +1,8 @@
 import albumentations as A
 import cv2
 import torch
-
+import utils
 from albumentations.pytorch import ToTensorV2
-from utils import seed_everything
 
 IMG_DIR = "/home/maksm/Документы/datasets/images/"
 LABEL_DIR = "/home/maksm/Документы/datasets/labels/"
@@ -11,12 +10,12 @@ DATASET_DIR = '/home/maksm/Документы/datasets'
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # seed_everything()  # If you want deterministic behavior
 NUM_WORKERS = 4
-BATCH_SIZE = 32
+BATCH_SIZE = 1
 IMAGE_SIZE = 416
 NUM_CLASSES = 20
 LEARNING_RATE = 1e-5
 WEIGHT_DECAY = 1e-4
-NUM_EPOCHS = 100
+NUM_EPOCHS = 2
 CONF_THRESHOLD = 0.05
 MAP_IOU_THRESH = 0.5
 NMS_IOU_THRESH = 0.45
